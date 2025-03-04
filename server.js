@@ -11,8 +11,12 @@ app.use(express.json());
 // **Serve Favicon Correctly**
 app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
 
-// **CORS Configuration (Supports localhost:3000 & localhost:3001)**
-const allowedOrigins = ["http://localhost:3000", "http://localhost:3001"];
+// **CORS Configuration (Allow Local & Production)**
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "https://recipewala.onrender.com", // ✅ Deployed Frontend
+];
 
 app.use(
   cors({
@@ -23,15 +27,17 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true,
+    credentials: true, // Allow cookies & auth headers
   })
 );
 
-// **Set Content-Security-Policy (CSP)**
+// **Set Security Headers**
 app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self'; img-src 'self' data: blob: http://localhost:5000 http://localhost:3000 http://localhost:3001; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+    "default-src 'self'; img-src 'self' data: blob: https://recipewala.onrender.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
   );
   next();
 });
